@@ -1,0 +1,35 @@
+[workspace]
+name = "conda-cps-install-example"
+description = "Example project that installs cps-examples' zwrap demo inside a Pixi-managed Conda environment."
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-arm64", "win-64"]
+
+[target.win.activation.env]
+CMAKE_INSTALL_PREFIX = "%CONDA_PREFIX%\\Library"
+
+[target.unix.activation.env]
+CMAKE_INSTALL_PREFIX = "$CONDA_PREFIX"
+
+[dependencies]
+cmake = ">=4.2"
+ninja = "*"
+python = ">=3.11"
+pkg-config = "*"
+cxx-compiler = "*"
+zlib-ng = "*"
+
+[tasks.configure]
+cmd = "cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release"
+
+[tasks.build]
+cmd = "cmake --build build"
+depends-on = ["configure"]
+
+[tasks.install]
+cmd = "cmake --install build"
+depends-on = ["build"]
+
+[tasks.list-installed-cps]
+description = "List every *.cps manifest currently visible inside the Pixi environment prefix."
+depends-on = ["install"]
+cmd = "python list_cps_files.py"
